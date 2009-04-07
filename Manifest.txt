@@ -1,0 +1,7 @@
+History.txt
+Manifest.txt
+README.txt
+Rakefile
+bin/wank
+lib/wank.rb
+test/test_wank.rb

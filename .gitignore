@@ -1,0 +1,11 @@
+.*.swp
+*.tmproj
+ext/wank/*.o
+ext/wank/*.dll
+ext/wank/Makefile
+ext/wank/*.log
+ext/wank/*.bundle
+ext/wank/*.a
+ext/wank/*.so
+ext/wank/conftest.dSYM
+tags
