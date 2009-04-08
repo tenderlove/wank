@@ -18,15 +18,11 @@ module Wank
 
       def to_s
         add_root!
-        case target_type
-        when :true
+        case type = target_type
+        when :true, :false, :nil
           span = @doc.root.add_child(Node.new('span', @doc))
           span['class'] = @target.class.name
-          span.add_child(Text.new('true', @doc))
-        when :false
-          span = @doc.root.add_child(Node.new('span', @doc))
-          span['class'] = @target.class.name
-          span.add_child(Text.new('false', @doc))
+          span.add_child(Text.new(type.to_s, @doc))
         end
         @doc.to_xml
       end
@@ -36,6 +32,7 @@ module Wank
         @doc.root.children.each do |child|
           return true if child['class'] == 'TrueClass'
           return false if child['class'] == 'FalseClass'
+          return nil if child['class'] == 'NilClass'
         end
       end
 
