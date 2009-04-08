@@ -8,6 +8,11 @@ module Wank
         x = true
         assert_equal x, Marshal.load(Marshal.dump(x))
       end
+
+      def test_false
+        x = false
+        assert_equal x, Marshal.load(Marshal.dump(x))
+      end
     end
   end
 end

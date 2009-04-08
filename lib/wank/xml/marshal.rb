@@ -23,13 +23,20 @@ module Wank
           span = @doc.root.add_child(Node.new('span', @doc))
           span['class'] = @target.class.name
           span.add_child(Text.new('true', @doc))
+        when :false
+          span = @doc.root.add_child(Node.new('span', @doc))
+          span['class'] = @target.class.name
+          span.add_child(Text.new('false', @doc))
         end
         @doc.to_xml
       end
 
       def to_o
         @doc = Nokogiri::XML(@target, nil, nil, PARSE_NOBLANKS)
-        true
+        @doc.root.children.each do |child|
+          return true if child['class'] == 'TrueClass'
+          return false if child['class'] == 'FalseClass'
+        end
       end
 
       private

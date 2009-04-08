@@ -3,8 +3,8 @@
 static VALUE target_type(VALUE self)
 {
   VALUE target = rb_iv_get(self, "@target");
-
-  return ID2SYM(rb_intern("true"));
+  if(target == Qtrue) return ID2SYM(rb_intern("true"));
+  if(target == Qfalse) return ID2SYM(rb_intern("false"));
 }
 
 void init_wank_xml_marshal()
