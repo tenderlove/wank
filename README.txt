@@ -1,10 +1,10 @@
 = wank
 
-* FIX (url)
+* http://wank.rubyforge.org/
 
 == DESCRIPTION:
 
-FIX (describe your package)
+Wank will marshal objects as XHTML
 
 == FEATURES/PROBLEMS:
 
@@ -12,7 +12,33 @@ FIX (describe your package)
 
 == SYNOPSIS:
 
-  FIX (code sample of usage)
+  puts Wank::HTML::Marshal.dump(100)
+
+  <html>
+    <body>
+      <h1>Integer</h1>
+      <span class="Integer">100</span>
+    </body>
+  </html>
+
+  <html>
+    <body>
+      <div class="StringSubclass">
+        <span name="super-value">foobar</span>
+      </div>
+    </body>
+  </html>
+
+  <html>
+    <body>
+      <div class="HashSubclass">
+        <dl name="super-value">
+          <dt>key</dt>
+          <dd>value</dd>
+        </dl>
+      </div>
+    </body>
+  </html>
 
 == REQUIREMENTS:
 

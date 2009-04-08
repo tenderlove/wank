@@ -12,6 +12,8 @@ HOE = Hoe.new('wank', Wank::VERSION) do |p|
   p.extra_dev_deps  << "rake-compiler"
 end
 
-Rake::ExtensionTask.new("wank", HOE.spec)
+Rake::ExtensionTask.new("wank", HOE.spec) do |ext|
+  ext.lib_dir = "ext/wank"
+end
 
 # vim: syntax=Ruby

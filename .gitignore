@@ -8,4 +8,5 @@ ext/wank/*.bundle
 ext/wank/*.a
 ext/wank/*.so
 ext/wank/conftest.dSYM
+tmp
 tags

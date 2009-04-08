@@ -1,3 +1,4 @@
-class Wank
-  VERSION = '1.0.0'
-end
+require 'nokogiri'
+require 'wank/version'
+require 'wank/xml/marshal'
+require 'wank/wank'
