@@ -23,6 +23,10 @@ module Wank
           span = @doc.root.add_child(Node.new('span', @doc))
           span['class'] = @target.class.name
           span.add_child(Text.new(type.to_s, @doc))
+        when :fixnum
+          span = @doc.root.add_child(Node.new('span', @doc))
+          span['class'] = @target.class.name
+          span.add_child(Text.new(@target.to_s, @doc))
         end
         @doc.to_xml
       end
@@ -33,6 +37,7 @@ module Wank
           return true if child['class'] == 'TrueClass'
           return false if child['class'] == 'FalseClass'
           return nil if child['class'] == 'NilClass'
+          return Integer(child.content) if child['class'] == 'Fixnum'
         end
       end
 
