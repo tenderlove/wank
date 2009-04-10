@@ -84,8 +84,18 @@ static VALUE dump(VALUE self, VALUE target)
 
 	    case T_MODULE:
         PUSH("span");
-        rb_funcall(self, rb_intern("text"), 1,
-            rb_class_path(target));
+        rb_funcall(self, rb_intern("text"), 1, rb_class_path(target));
+        POP;
+        break;
+
+	    case T_ARRAY:
+        PUSH("ol");
+        long i;
+		    for (i = 0; i < RARRAY_LEN(target); i++) {
+          PUSH("li");
+          dump(self, RARRAY_PTR(target)[i]);
+          POP;
+        }
         POP;
         break;
 

@@ -59,6 +59,11 @@ module Wank
         assert_equal x, Marshal.load(Marshal.dump(x))
       end
 
+      def test_array
+        x = [1, "two", 3.0]
+        assert_equal x, Marshal.load(Marshal.dump(x))
+      end
+
       #def test_object
       #  x = Object.new
       #  assert_equal x, Marshal.load(Marshal.dump(x))

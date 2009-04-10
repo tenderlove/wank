@@ -30,46 +30,43 @@ module Wank
       def to_o
         @doc = Nokogiri::XML(@target, nil, nil, PARSE_NOBLANKS)
         @doc.root.children.each do |child|
-          return true if child['class']   == 'TrueClass'
-          return false if child['class']  == 'FalseClass'
-          return nil if child['class']    == 'NilClass'
-          return Integer(child.content) if child['class'] == 'Fixnum'
-          if child['class'] == 'Float'
-            return -1 / 0.0 if child.content == '-Infinity'
-            return 1 / 0.0 if child.content == 'Infinity'
-            return 0.0 / 0.0 if child.content == 'NaN'
-            return Float(child.content) if child['class'] == 'Float'
-          end
-          return child.content if child['class'] == 'String'
-          return child.content.to_sym if child['class'] == 'Symbol'
-          if %w{ Class Module }.include?(child['class'])
-            return child.content.split('::').inject(Object) { |m,s|
-              m.const_get(s)
-            }
-          end
+          return __load(child)
         end
       end
 
       private
-      def x_dump target
-        div = @parent.add_child(Node.new('div', @doc))
-        div['class'] = @target.class.name
-
-        span = div.add_child(Node.new('span', @doc))
-        case type = target_type
-        when :true, :false, :nil
-          span.add_child(Text.new(type.to_s, @doc))
-        when :fixnum, :float
-          span.add_child(Text.new(@target.to_s, @doc))
-        end
-      end
-
       def push node_name
         @parent = @parent.add_child(Node.new(node_name, @doc))
       end
 
       def pop
         @parent = @parent.parent
+      end
+
+      def __load node
+        return true if node['class']   == 'TrueClass'
+        return false if node['class']  == 'FalseClass'
+        return nil if node['class']    == 'NilClass'
+        return Integer(node.content) if node['class'] == 'Fixnum'
+        if node['class'] == 'Float'
+          return -1 / 0.0 if node.content == '-Infinity'
+          return 1 / 0.0 if node.content == 'Infinity'
+          return 0.0 / 0.0 if node.content == 'NaN'
+          return Float(node.content) if node['class'] == 'Float'
+        end
+        return node.content if node['class'] == 'String'
+        return node.content.to_sym if node['class'] == 'Symbol'
+        if %w{ Class Module }.include?(node['class'])
+          return node.content.split('::').inject(Object) { |m,s|
+            m.const_get(s)
+          }
+        end
+
+        if node['class'] == 'Array'
+          return node.child.children.map do |li|
+            __load(li.child)
+          end
+        end
       end
 
       ###
