@@ -86,10 +86,13 @@ module Wank
         }
       end
 
-      #def test_object
-      #  x = Object.new
-      #  assert_equal x, Marshal.load(Marshal.dump(x))
-      #end
+      class F < Object
+      end
+
+      def test_object
+        x = F.new
+        assert_instance_of F, Marshal.load(Marshal.dump(x))
+      end
 
       def test_symbol
         x = :foo

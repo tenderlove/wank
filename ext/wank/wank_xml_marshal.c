@@ -140,6 +140,10 @@ static VALUE dump(VALUE self, VALUE target)
         }
         break;
 
+      case T_OBJECT:
+        SET_CLASS(rb_class_of(target));
+        break;
+
       default:
 	      rb_raise(rb_eTypeError, "I can't handle %s", rb_obj_classname(target));
     }

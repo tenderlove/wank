@@ -86,6 +86,10 @@ module Wank
           end
           return klass.new(*values)
         end
+
+        node['class'].split('::').inject(Object) { |m,s|
+          m.const_get(s)
+        }.new
       end
 
       ###
