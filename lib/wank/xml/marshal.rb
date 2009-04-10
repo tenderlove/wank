@@ -40,6 +40,7 @@ module Wank
             return 0.0 / 0.0 if child.content == 'NaN'
             return Float(child.content) if child['class'] == 'Float'
           end
+          return child.content if child['class'] == 'String'
           return child.content.to_sym if child['class'] == 'Symbol'
         end
       end

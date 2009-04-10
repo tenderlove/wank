@@ -59,8 +59,15 @@ static VALUE dump(VALUE self, VALUE target)
         POP;
         break;
 
+	    case T_STRING:
+        PUSH("span");
+        rb_funcall(self, rb_intern("text"), 1,
+            rb_str_new(RSTRING_PTR(target), RSTRING_LEN(target)));
+        POP;
+        break;
+
       default:
-        rb_raise(rb_eRuntimeError, "I can't handle that object");
+	      rb_raise(rb_eTypeError, "I can't handle %s", rb_obj_classname(target));
     }
   }
 

@@ -44,6 +44,11 @@ module Wank
         assert Marshal.load(Marshal.dump(x)).nan?
       end
 
+      def test_string
+        x = "foo"
+        assert_equal x, Marshal.load(Marshal.dump(x))
+      end
+
       #def test_object
       #  x = Object.new
       #  assert_equal x, Marshal.load(Marshal.dump(x))
