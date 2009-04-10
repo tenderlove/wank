@@ -74,6 +74,18 @@ module Wank
         assert_equal x, Marshal.load(Marshal.dump(x))
       end
 
+      X = Struct.new(:foo)
+      def test_struct
+        x = X.new('bar')
+        assert_equal x, Marshal.load(Marshal.dump(x))
+      end
+
+      def test_anon_struct
+        assert_raise(TypeError) {
+          Marshal.dump(Struct.new(:foo).new('bar'))
+        }
+      end
+
       #def test_object
       #  x = Object.new
       #  assert_equal x, Marshal.load(Marshal.dump(x))

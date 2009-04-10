@@ -24,37 +24,44 @@
 #define ADD_TEXT(text) \
   rb_funcall(self, rb_intern("text"), 1, rb_str_new2(text));
 
+#define SET_CLASS(class) \
+  rb_funcall(self, rb_intern("set_class"), 1, rb_class_path(class));
+
 static int hash_each(VALUE key, VALUE value, VALUE self);
 
 static VALUE dump(VALUE self, VALUE target)
 {
   VALUE div = PUSH("div");
 
-  SET_ATTRIBUTE(div, "class", rb_class_path(rb_class_of(target)));
-
   if (target == Qnil) {
+    SET_CLASS(rb_class_of(target));
     PUSH("span");
     ADD_TEXT("nil");
     POP;
   } else if (target == Qtrue) {
+    SET_CLASS(rb_class_of(target));
     PUSH("span");
     ADD_TEXT("true");
     POP;
   } else if (target == Qfalse) {
+    SET_CLASS(rb_class_of(target));
     PUSH("span");
     ADD_TEXT("true");
     POP;
   } else if (FIXNUM_P(target)) {
+    SET_CLASS(rb_class_of(target));
     PUSH("span");
     rb_funcall(self, rb_intern("text"), 1, rb_fix2str(target, 10));
     POP;
   } else if (SYMBOL_P(target)) {
+    SET_CLASS(rb_class_of(target));
     PUSH("span");
     ADD_TEXT(rb_id2name(SYM2ID(target)))
     POP;
   } else {
 	  switch (BUILTIN_TYPE(target)) {
 	    case T_FLOAT:
+        SET_CLASS(rb_class_of(target));
         PUSH("span");
         char buf[32];
         double value = RFLOAT_VALUE(target);
@@ -70,6 +77,7 @@ static VALUE dump(VALUE self, VALUE target)
         break;
 
 	    case T_STRING:
+        SET_CLASS(rb_class_of(target));
         PUSH("span");
         rb_funcall(self, rb_intern("text"), 1,
             rb_str_new(RSTRING_PTR(target), RSTRING_LEN(target)));
@@ -77,7 +85,9 @@ static VALUE dump(VALUE self, VALUE target)
         break;
 
 	    case T_CLASS:
+        SET_CLASS(target);
         SET_ATTRIBUTE(div, "class", rb_str_new2("Class"));
+        SET_ATTRIBUTE(div, "name", rb_class_path(target));
         PUSH("span");
         rb_funcall(self, rb_intern("text"), 1,
             rb_class_path(target));
@@ -85,12 +95,14 @@ static VALUE dump(VALUE self, VALUE target)
         break;
 
 	    case T_MODULE:
+        SET_CLASS(rb_class_of(target));
         PUSH("span");
         rb_funcall(self, rb_intern("text"), 1, rb_class_path(target));
         POP;
         break;
 
 	    case T_ARRAY:
+        SET_CLASS(rb_class_of(target));
         PUSH("ol");
         long i;
 		    for (i = 0; i < RARRAY_LEN(target); i++) {
@@ -102,9 +114,30 @@ static VALUE dump(VALUE self, VALUE target)
         break;
 
 	    case T_HASH:
+        SET_CLASS(rb_class_of(target));
         PUSH("dl");
 	      rb_hash_foreach(target, hash_each, self);
         POP;
+        break;
+
+	    case T_STRUCT:
+        {
+          SET_CLASS(rb_class_of(target));
+          SET_ATTRIBUTE(div, "class", rb_str_new2("Struct"));
+          SET_ATTRIBUTE(div, "name", rb_class_path(rb_class_of(target)));
+          PUSH("dl");
+		      long i;
+		      VALUE mem = rb_struct_members(target);
+		      for (i = 0; i < RSTRING_LEN(target); i++) {
+            PUSH("dt");
+            dump(self, RARRAY_PTR(mem)[i]);
+            POP;
+            PUSH("dd");
+            dump(self, RSTRUCT_PTR(target)[i]);
+            POP;
+		      }
+          POP;
+        }
         break;
 
       default:

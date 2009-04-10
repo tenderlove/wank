@@ -73,6 +73,19 @@ module Wank
             __load(dd_dt.child)
           }.flatten)]
         end
+
+        if node['class'] == 'Struct'
+          keys    = []
+          values  = []
+          klass = node['name'].split('::').inject(Object) { |m,s|
+            m.const_get(s)
+          }
+          node.child.children.each do |dd_dt|
+            keys    << __load(dd_dt.child) if dd_dt.name == 'dt'
+            values  << __load(dd_dt.child) if dd_dt.name == 'dd'
+          end
+          return klass.new(*values)
+        end
       end
 
       ###
@@ -83,6 +96,13 @@ module Wank
 
       def add_root!
         @doc.root = Element.new('marshal', @doc)
+      end
+
+      def set_class class_name
+        if class_name =~ /^#/
+          raise TypeError, ("can't dump anonymous %s" % class_name)
+        end
+        @parent['class'] = class_name
       end
     end
   end
