@@ -1,5 +1,9 @@
 #include <wank_xml_marshal.h>
 
+#ifndef RFLOAT_VALUE
+#define RFLOAT_VALUE(f) (RFLOAT(f)->value)
+#endif
+
 #define PUSH(node_name) \
   rb_funcall(self, rb_intern("push"), 1, rb_str_new2(node_name));
 
@@ -39,7 +43,23 @@ static VALUE dump(VALUE self, VALUE target)
     ADD_TEXT(rb_id2name(SYM2ID(target)))
     POP;
   } else {
-    rb_raise(rb_eRuntimeError, "I can't handle that object");
+	  switch (BUILTIN_TYPE(target)) {
+	    case T_FLOAT:
+        PUSH("span");
+        char buf[32];
+        double value = RFLOAT_VALUE(target);
+        if(isinf(value))
+          ADD_TEXT(value < 0 ? "-Infinity" : "Infinity")
+        else {
+          sprintf(buf, "%#.15g", RFLOAT_VALUE(target));
+          ADD_TEXT(buf);
+        }
+        POP;
+        break;
+
+      default:
+        rb_raise(rb_eRuntimeError, "I can't handle that object");
+    }
   }
 
 

@@ -24,10 +24,20 @@ module Wank
         assert_equal x, Marshal.load(Marshal.dump(x))
       end
 
-      #def test_float
-      #  x = 2.2
-      #  assert_equal x, Marshal.load(Marshal.dump(x))
-      #end
+      def test_float
+        x = 2.2
+        assert_equal x, Marshal.load(Marshal.dump(x))
+      end
+
+      def test_negative_infinity
+        x = -1 / 0.0
+        assert_equal x, Marshal.load(Marshal.dump(x))
+      end
+
+      def test_positive_infinity
+        x = 1 / 0.0
+        assert_equal x, Marshal.load(Marshal.dump(x))
+      end
 
       #def test_object
       #  x = Object.new
