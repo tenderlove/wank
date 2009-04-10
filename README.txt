@@ -17,7 +17,9 @@ Wank will marshal objects as XHTML
   <html>
     <body>
       <h1>Integer</h1>
-      <span class="Integer">100</span>
+      <div class="Integer">
+        <span name="super-value">100</span>
+      </div>
     </body>
   </html>
 

@@ -24,6 +24,21 @@ module Wank
         assert_equal x, Marshal.load(Marshal.dump(x))
       end
 
+      #def test_float
+      #  x = 2.2
+      #  assert_equal x, Marshal.load(Marshal.dump(x))
+      #end
+
+      #def test_object
+      #  x = Object.new
+      #  assert_equal x, Marshal.load(Marshal.dump(x))
+      #end
+
+      def test_symbol
+        x = :foo
+        assert_equal x, Marshal.load(Marshal.dump(x))
+      end
+
       def test_nil_is_in_xml
         doc = Nokogiri::XML(Marshal.dump(nil))
         assert_equal 1, doc.css('span').length
