@@ -4,6 +4,14 @@
 #define RFLOAT_VALUE(f) (RFLOAT(f)->value)
 #endif
 
+#ifndef RREGEXP_SRC_PTR
+#define RREGEXP_SRC_PTR(f) (RREGEXP(f)->str)
+#endif
+
+#ifndef RREGEXP_SRC_LEN
+#define RREGEXP_SRC_LEN(f) (RREGEXP(f)->len)
+#endif
+
 #define PUSH(node_name) \
   rb_funcall(self, rb_intern("push"), 1, rb_str_new2(node_name));
 
@@ -63,6 +71,21 @@ static VALUE dump(VALUE self, VALUE target)
         PUSH("span");
         rb_funcall(self, rb_intern("text"), 1,
             rb_str_new(RSTRING_PTR(target), RSTRING_LEN(target)));
+        POP;
+        break;
+
+	    case T_CLASS:
+        SET_ATTRIBUTE(div, "class", rb_str_new2("Class"));
+        PUSH("span");
+        rb_funcall(self, rb_intern("text"), 1,
+            rb_class_path(target));
+        POP;
+        break;
+
+	    case T_MODULE:
+        PUSH("span");
+        rb_funcall(self, rb_intern("text"), 1,
+            rb_class_path(target));
         POP;
         break;
 

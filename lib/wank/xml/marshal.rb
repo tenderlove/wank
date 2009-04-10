@@ -42,6 +42,11 @@ module Wank
           end
           return child.content if child['class'] == 'String'
           return child.content.to_sym if child['class'] == 'Symbol'
+          if %w{ Class Module }.include?(child['class'])
+            return child.content.split('::').inject(Object) { |m,s|
+              m.const_get(s)
+            }
+          end
         end
       end
 

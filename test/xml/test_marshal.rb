@@ -49,6 +49,16 @@ module Wank
         assert_equal x, Marshal.load(Marshal.dump(x))
       end
 
+      def test_class
+        x = Marshal
+        assert_equal x, Marshal.load(Marshal.dump(x))
+      end
+
+      def test_module
+        x = XML
+        assert_equal x, Marshal.load(Marshal.dump(x))
+      end
+
       #def test_object
       #  x = Object.new
       #  assert_equal x, Marshal.load(Marshal.dump(x))
