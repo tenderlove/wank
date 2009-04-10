@@ -64,6 +64,16 @@ module Wank
         assert_equal x, Marshal.load(Marshal.dump(x))
       end
 
+      def test_hash
+        x = {:one => 'two', 3 => 4.0}
+        assert_equal x, Marshal.load(Marshal.dump(x))
+      end
+
+      def test_empty_hash
+        x = {}
+        assert_equal x, Marshal.load(Marshal.dump(x))
+      end
+
       #def test_object
       #  x = Object.new
       #  assert_equal x, Marshal.load(Marshal.dump(x))

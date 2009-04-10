@@ -24,6 +24,8 @@
 #define ADD_TEXT(text) \
   rb_funcall(self, rb_intern("text"), 1, rb_str_new2(text));
 
+static int hash_each(VALUE key, VALUE value, VALUE self);
+
 static VALUE dump(VALUE self, VALUE target)
 {
   VALUE div = PUSH("div");
@@ -99,6 +101,12 @@ static VALUE dump(VALUE self, VALUE target)
         POP;
         break;
 
+	    case T_HASH:
+        PUSH("dl");
+	      rb_hash_foreach(target, hash_each, self);
+        POP;
+        break;
+
       default:
 	      rb_raise(rb_eTypeError, "I can't handle %s", rb_obj_classname(target));
     }
@@ -106,6 +114,17 @@ static VALUE dump(VALUE self, VALUE target)
 
 
   return POP;
+}
+
+static int hash_each(VALUE key, VALUE value, VALUE self)
+{
+  PUSH("dt");
+  dump(self, key);
+  POP;
+  PUSH("dd");
+  dump(self, value);
+  POP;
+  return 0;
 }
 
 void init_wank_xml_marshal()

@@ -67,6 +67,12 @@ module Wank
             __load(li.child)
           end
         end
+
+        if node['class'] == 'Hash'
+          return Hash[*(node.child.children.map { |dd_dt|
+            __load(dd_dt.child)
+          }.flatten)]
+        end
       end
 
       ###
