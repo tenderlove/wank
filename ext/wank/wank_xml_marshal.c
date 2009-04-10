@@ -48,9 +48,11 @@ static VALUE dump(VALUE self, VALUE target)
         PUSH("span");
         char buf[32];
         double value = RFLOAT_VALUE(target);
-        if(isinf(value))
-          ADD_TEXT(value < 0 ? "-Infinity" : "Infinity")
-        else {
+        if(isinf(value)) {
+          ADD_TEXT(value < 0 ? "-Infinity" : "Infinity");
+        } else if(isnan(value)) {
+          ADD_TEXT("NaN");
+        } else {
           sprintf(buf, "%#.15g", RFLOAT_VALUE(target));
           ADD_TEXT(buf);
         }

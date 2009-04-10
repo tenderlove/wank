@@ -37,6 +37,7 @@ module Wank
           if child['class'] == 'Float'
             return -1 / 0.0 if child.content == '-Infinity'
             return 1 / 0.0 if child.content == 'Infinity'
+            return 0.0 / 0.0 if child.content == 'NaN'
             return Float(child.content) if child['class'] == 'Float'
           end
           return child.content.to_sym if child['class'] == 'Symbol'
