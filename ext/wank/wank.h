@@ -3,6 +3,7 @@
 
 #include <stdlib.h>
 #include <ruby.h>
+#include <ruby/st.h>
 
 extern VALUE mWank;
 extern VALUE mWankXml;

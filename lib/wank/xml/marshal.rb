@@ -37,6 +37,11 @@ module Wank
       private
       def push node_name
         @parent = @parent.add_child(Node.new(node_name, @doc))
+        if block_given?
+          yield @parent
+          pop
+        end
+        @parent
       end
 
       def pop
@@ -80,16 +85,30 @@ module Wank
           klass = node['name'].split('::').inject(Object) { |m,s|
             m.const_get(s)
           }
-          node.child.children.each do |dd_dt|
-            keys    << __load(dd_dt.child) if dd_dt.name == 'dt'
-            values  << __load(dd_dt.child) if dd_dt.name == 'dd'
+          node.child.children.each do |dt_dd|
+            keys    << __load(dt_dd.child) if dt_dd.name == 'dt'
+            values  << __load(dt_dd.child) if dt_dd.name == 'dd'
           end
           return klass.new(*values)
         end
 
-        node['class'].split('::').inject(Object) { |m,s|
+        instance = node['class'].split('::').inject(Object) { |m,s|
           m.const_get(s)
         }.new
+        node.children.each do |child|
+          if child['name'] == 'ivars'
+            keys    = []
+            values  = []
+            child.child.children.map { |dt_dd|
+              keys    << __load(dt_dd.child) if dt_dd.name == 'dt'
+              values  << __load(dt_dd.child) if dt_dd.name == 'dd'
+            }
+            keys.zip(values).each do |k,v|
+              instance.instance_variable_set(k, v)
+            end
+          end
+        end
+        instance
       end
 
       ###
@@ -107,6 +126,19 @@ module Wank
           raise TypeError, ("can't dump anonymous %s" % class_name)
         end
         @parent['class'] = class_name
+      end
+
+      def __dump_ivars list
+        return if list.length == 0
+        push("div") { |div|
+          div['name'] = 'ivars'
+          push("dl") { |dl|
+            list.each do |ivar_name|
+              push('dt') { dump(ivar_name) }
+              push('dd') { __dump_ivar(@target, ivar_name.to_sym) }
+            end
+          }
+        }
       end
     end
   end

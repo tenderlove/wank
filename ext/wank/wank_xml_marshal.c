@@ -149,6 +149,9 @@ static VALUE dump(VALUE self, VALUE target)
     }
   }
 
+  VALUE ivars = rb_obj_instance_variables(target);
+  rb_funcall(self, rb_intern("__dump_ivars"), 1, ivars);
+
 
   return POP;
 }
@@ -161,10 +164,17 @@ static int hash_each(VALUE key, VALUE value, VALUE self)
   PUSH("dd");
   dump(self, value);
   POP;
-  return 0;
+  return ST_CONTINUE;
+}
+
+static VALUE dump_ivar(VALUE self, VALUE target, VALUE ivar_name)
+{
+  VALUE ivar = rb_ivar_get(target, SYM2ID(ivar_name));
+  return dump(self, ivar);
 }
 
 void init_wank_xml_marshal()
 {
   rb_define_private_method(cWankXmlMarshal, "dump", dump, 1);
+  rb_define_private_method(cWankXmlMarshal, "__dump_ivar", dump_ivar, 2);
 }

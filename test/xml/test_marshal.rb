@@ -94,6 +94,20 @@ module Wank
         assert_instance_of F, Marshal.load(Marshal.dump(x))
       end
 
+      class G < Object
+        attr_accessor :foo
+        def initialize
+          @foo = nil
+        end
+      end
+
+      def test_object_with_ivar
+        x = G.new
+        x.foo = "bar"
+        y = Marshal.load(Marshal.dump(x))
+        assert_equal "bar", y.instance_variable_get(:@foo)
+      end
+
       def test_symbol
         x = :foo
         assert_equal x, Marshal.load(Marshal.dump(x))
