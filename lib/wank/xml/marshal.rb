@@ -49,39 +49,37 @@ module Wank
       end
 
       def __load node
-        return true if node['class']   == 'TrueClass'
-        return false if node['class']  == 'FalseClass'
-        return nil if node['class']    == 'NilClass'
-        return Integer(node.content) if node['class'] == 'Fixnum'
-        if node['class'] == 'Float'
+        case node['class']
+        when 'TrueClass'
+          true
+        when 'FalseClass'
+          false
+        when 'NilClass'
+          nil
+        when 'Fixnum', 'Bignum'
+          Integer(node.content)
+        when 'Float'
           return -1 / 0.0 if node.content == '-Infinity'
           return 1 / 0.0 if node.content == 'Infinity'
           return 0.0 / 0.0 if node.content == 'NaN'
-          return Float(node.content) if node['class'] == 'Float'
-        end
-        return node.content if node['class'] == 'String'
-        return node.content.to_sym if node['class'] == 'Symbol'
-        if %w{ Class Module }.include?(node['class'])
-          return node.content.split('::').inject(Object) { |m,s|
+          Float(node.content)
+        when 'String'
+          node.content
+        when 'Symbol'
+          node.content.to_sym
+        when 'Class', 'Module'
+          node.content.split('::').inject(Object) { |m,s|
             m.const_get(s)
           }
-        end
-
-        return Integer(node.content) if node['class'] == 'Bignum'
-
-        if node['class'] == 'Array'
-          return node.child.children.map do |li|
+        when 'Array' # this should be in C
+          node.child.children.map do |li|
             __load(li.child)
           end
-        end
-
-        if node['class'] == 'Hash'
-          return Hash[*(node.child.children.map { |dd_dt|
+        when 'Hash' # this should be in C
+          Hash[*(node.child.children.map { |dd_dt|
             __load(dd_dt.child)
           }.flatten)]
-        end
-
-        if node['class'] == 'Struct'
+        when 'Struct'
           keys    = []
           values  = []
           klass = node['name'].split('::').inject(Object) { |m,s|
@@ -91,26 +89,26 @@ module Wank
             keys    << __load(dt_dd.child) if dt_dd.name == 'dt'
             values  << __load(dt_dd.child) if dt_dd.name == 'dd'
           end
-          return klass.new(*values)
-        end
-
-        instance = node['class'].split('::').inject(Object) { |m,s|
-          m.const_get(s)
-        }.new
-        node.children.each do |child|
-          if child['name'] == 'ivars'
-            keys    = []
-            values  = []
-            child.child.children.map { |dt_dd|
-              keys    << __load(dt_dd.child) if dt_dd.name == 'dt'
-              values  << __load(dt_dd.child) if dt_dd.name == 'dd'
-            }
-            keys.zip(values).each do |k,v|
-              instance.instance_variable_set(k, v)
+          klass.new(*values)
+        else
+          instance = node['class'].split('::').inject(Object) { |m,s|
+            m.const_get(s)
+          }.new
+          node.children.each do |child|
+            if child['name'] == 'ivars'
+              keys    = []
+              values  = []
+              child.child.children.map { |dt_dd|
+                keys    << __load(dt_dd.child) if dt_dd.name == 'dt'
+                values  << __load(dt_dd.child) if dt_dd.name == 'dd'
+              }
+              keys.zip(values).each do |k,v|
+                instance.instance_variable_set(k, v) # this should be in C
+              end
             end
           end
+          instance
         end
-        instance
       end
 
       ###
