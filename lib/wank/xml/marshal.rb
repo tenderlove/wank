@@ -18,12 +18,9 @@ module Wank
       end
 
       def to_s
-        add_root!
-
+        @doc.root = Element.new('marshal', @doc)
         @parent = @doc.root
-
         dump(@target)
-
         @doc.to_xml
       end
 
@@ -115,10 +112,6 @@ module Wank
       # Add some text to the current parent node
       def text text
         @parent.add_child(Text.new(text, @doc))
-      end
-
-      def add_root!
-        @doc.root = Element.new('marshal', @doc)
       end
 
       def set_class class_name

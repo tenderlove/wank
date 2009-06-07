@@ -13,7 +13,7 @@ HOE = Hoe.new('wank', Wank::VERSION) do |p|
 end
 
 Rake::ExtensionTask.new("wank", HOE.spec) do |ext|
-  ext.lib_dir = "ext/wank"
+  ext.lib_dir = "lib/wank"
 end
 
 # vim: syntax=Ruby

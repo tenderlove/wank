@@ -4,57 +4,59 @@
 
 == DESCRIPTION:
 
-Wank will marshal objects as XHTML
+Wank will marshal objects as XML or HTML
 
 == FEATURES/PROBLEMS:
 
-* FIX (list of features or problems)
+* Some things might not work!  o.O
 
 == SYNOPSIS:
 
-  puts Wank::HTML::Marshal.dump(100)
+  puts Wank::HTML::Marshal.dump({:one => 'two', 3 => 4.0})
 
-  <html>
+  <html xmlns="http://www.w3.org/1999/xhtml">
     <body>
-      <h1>Integer</h1>
-      <div class="Integer">
-        <span name="super-value">100</span>
-      </div>
-    </body>
-  </html>
-
-  <html>
-    <body>
-      <div class="StringSubclass">
-        <span name="super-value">foobar</span>
-      </div>
-    </body>
-  </html>
-
-  <html>
-    <body>
-      <div class="HashSubclass">
-        <dl name="super-value">
-          <dt>key</dt>
-          <dd>value</dd>
+      <div class="Hash">
+        <dl>
+          <dt>
+            <div class="Symbol">
+              <span>one</span>
+            </div>
+          </dt>
+          <dd>
+            <div class="String">
+              <span>two</span>
+            </div>
+          </dd>
+          <dt>
+            <div class="Fixnum">
+              <span>3</span>
+            </div>
+          </dt>
+          <dd>
+            <div class="Float">
+              <span>4.00000000000000</span>
+            </div>
+          </dd>
         </dl>
       </div>
     </body>
   </html>
+  
 
 == REQUIREMENTS:
 
-* FIX (list of requirements)
+* nokogiri
 
 == INSTALL:
 
-* FIX (sudo gem install, anything else)
+* gem install nokogiri
 
 == LICENSE:
 
 (The MIT License)
 
-Copyright (c) 2009 FIX
+Copyright (c) 2009 Aaron Patterson
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the
