@@ -28,7 +28,7 @@ module Wank
       end
 
       def to_o
-        @doc = Nokogiri::XML(@target, nil, nil, PARSE_NOBLANKS)
+        @doc = Nokogiri::XML(@target) { |cfg| cfg.noblanks }
         @doc.root.children.each do |child|
           return __load(child)
         end
@@ -66,6 +66,8 @@ module Wank
             m.const_get(s)
           }
         end
+
+        return Integer(node.content) if node['class'] == 'Bignum'
 
         if node['class'] == 'Array'
           return node.child.children.map do |li|

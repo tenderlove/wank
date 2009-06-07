@@ -76,6 +76,13 @@ static VALUE dump(VALUE self, VALUE target)
         POP;
         break;
 
+      case T_BIGNUM:
+        SET_CLASS(rb_class_of(target));
+        PUSH("span");
+        rb_funcall(self, rb_intern("text"), 1, rb_big2str(target, 10));
+        POP;
+        break;
+
 	    case T_STRING:
         SET_CLASS(rb_class_of(target));
         PUSH("span");

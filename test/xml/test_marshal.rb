@@ -4,6 +4,26 @@ require "wank"
 module Wank
   module XML
     class TestMarshal < Test::Unit::TestCase
+      def fact(n)
+        return 1 if n == 0
+        f = 1
+        while n>0
+          f *= n
+          n -= 1
+        end
+        return f
+      end
+
+      def test_marshal
+        x = [1, 2, 3, [4,5,"foo"], {1=>"bar"}, 2.5, fact(30)]
+        assert_equal x, Marshal.load(Marshal.dump(x))
+
+        [[1,2,3,4], [81, 2, 118, 3146]].each { |w,x,y,z|
+          obj = (x.to_f + y.to_f / z.to_f) * Math.exp(w.to_f / (x.to_f + y.to_f / z.to_f))
+          assert_equal obj.to_s, Marshal.load(Marshal.dump(obj)).to_s
+        }
+      end
+
       def test_true
         x = true
         assert_equal x, Marshal.load(Marshal.dump(x))
