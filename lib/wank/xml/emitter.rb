@@ -46,7 +46,9 @@ module Wank
         text = Nokogiri::XML::Text.new(value, @stack.last.document)
 
         if root?
-          add_child Nokogiri::XML::Node.new(SCALAR_TAG, @stack.last.document)
+          tag = Nokogiri::XML::Node.new(SCALAR_TAG, @stack.last.document)
+          add_child tag
+          @stack.push tag
         end
 
         add_child text
