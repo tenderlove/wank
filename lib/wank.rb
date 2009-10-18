@@ -1,5 +1,7 @@
 require 'nokogiri'
-require 'wank/version'
 require 'wank/xml/marshal'
 require 'wank/html/marshal'
-require 'wank/wank'
+
+module Wank
+  VERSION = '1.0.0'
+end
