@@ -1,12 +1,7 @@
 # -*- ruby -*-
 
 Autotest.add_hook :run_command do |at|
-  at.libs = %w[. lib test ext].join(':')
-  if ENV['ONENINE']
-    system "rake1.9 compile"
-  else
-    system "rake compile"
-  end
+  at.unit_diff = 'cat'
 end
 
 class Autotest

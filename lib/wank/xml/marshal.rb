@@ -17,18 +17,29 @@ module Wank
         @parent = nil
       end
 
+      def dump o
+        visitor = Psych::Visitors::YASTBuilder.new
+        visitor.accept(o)
+        yaml_ast = visitor.tree
+        emitter = Class.new(Psych::Visitors::Emitter) {
+          attr_accessor :handler
+          def initialize handler
+            @handler = handler
+          end
+        }.new(XML::Emitter.new)
+
+        emitter.accept(yaml_ast)
+        emitter.handler.documents.first.to_xml
+      end
+
       def to_s
-        @doc.root = Element.new('marshal', @doc)
-        @parent = @doc.root
         dump(@target)
-        @doc.to_xml
       end
 
       def to_o
-        @doc = Nokogiri::XML(@target) { |cfg| cfg.noblanks }
-        @doc.root.children.each do |child|
-          return __load(child)
-        end
+        doc = XML::Parser.new
+        Nokogiri::XML::SAX::Parser.new(doc).parse(@target)
+        doc.tree.root.to_ruby.first
       end
 
       private
@@ -43,69 +54,6 @@ module Wank
 
       def pop
         @parent = @parent.parent
-      end
-
-      def __load node
-        case node['class']
-        when 'TrueClass'
-          true
-        when 'FalseClass'
-          false
-        when 'NilClass'
-          nil
-        when 'Fixnum', 'Bignum'
-          Integer(node.content)
-        when 'Float'
-          return -1 / 0.0 if node.content == '-Infinity'
-          return 1 / 0.0 if node.content == 'Infinity'
-          return 0.0 / 0.0 if node.content == 'NaN'
-          Float(node.content)
-        when 'String'
-          node.content
-        when 'Symbol'
-          node.content.to_sym
-        when 'Class', 'Module'
-          node.content.split('::').inject(Object) { |m,s|
-            m.const_get(s)
-          }
-        when 'Array' # this should be in C
-          node.child.children.map do |li|
-            __load(li.child)
-          end
-        when 'Hash' # this should be in C
-          Hash[*(node.child.children.map { |dd_dt|
-            __load(dd_dt.child)
-          }.flatten)]
-        when 'Struct'
-          keys    = []
-          values  = []
-          klass = node['name'].split('::').inject(Object) { |m,s|
-            m.const_get(s)
-          }
-          node.child.children.each do |dt_dd|
-            keys    << __load(dt_dd.child) if dt_dd.name == 'dt'
-            values  << __load(dt_dd.child) if dt_dd.name == 'dd'
-          end
-          klass.new(*values)
-        else
-          instance = node['class'].split('::').inject(Object) { |m,s|
-            m.const_get(s)
-          }.new
-          node.children.each do |child|
-            if child['name'] == 'ivars'
-              keys    = []
-              values  = []
-              child.child.children.map { |dt_dd|
-                keys    << __load(dt_dd.child) if dt_dd.name == 'dt'
-                values  << __load(dt_dd.child) if dt_dd.name == 'dd'
-              }
-              keys.zip(values).each do |k,v|
-                instance.instance_variable_set(k, v) # this should be in C
-              end
-            end
-          end
-          instance
-        end
       end
 
       ###
