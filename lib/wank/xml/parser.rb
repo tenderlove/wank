@@ -21,6 +21,7 @@ module Wank
       def start_element_namespace name, attrs, prefix, uri, ns
         stack.push [name, attrs, StringIO.new]
         @tree.start_sequence if name == Emitter::SEQUENCE_TAG
+        @tree.start_mapping  if name == Emitter::MAPPING_TAG
       end
 
       def characters string
@@ -29,8 +30,9 @@ module Wank
 
       def end_element_namespace name, prefix, uri
         name, attrs, content = stack.pop
-        @tree.scalar content.string if name == Emitter::SCALAR_TAG
-        @tree.end_sequence if name == Emitter::SEQUENCE_TAG
+        @tree.scalar content.string if Emitter::SCALAR_TAGS.include?(name)
+        @tree.end_sequence          if name == Emitter::SEQUENCE_TAG
+        @tree.end_mapping           if name == Emitter::MAPPING_TAG
       end
     end
   end

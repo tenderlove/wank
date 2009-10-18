@@ -4,7 +4,9 @@ module Wank
       attr_accessor :documents
 
       SCALAR_TAG   = 'p'
+      SCALAR_TAGS  = %w{ p li dt dd }
       SEQUENCE_TAG = 'ol'
+      MAPPING_TAG  = 'dl'
 
       def initialize
         @documents = []
@@ -30,11 +32,24 @@ module Wank
         @stack.pop
       end
 
-      def scalar value, anchor, tag, plain, quoted, style
-        node = Nokogiri::XML::Node.new(SCALAR_TAG, @stack.last.document)
+      def start_mapping anchor, tag, implicit, style
+        node = Nokogiri::XML::Node.new(MAPPING_TAG, @stack.last.document)
         add_child node
-        node.content     = value
-        node['data-tag'] = tag if tag
+        @stack.push node
+      end
+
+      def end_mapping
+        @stack.pop
+      end
+
+      def scalar value, anchor, tag, plain, quoted, style
+        text = Nokogiri::XML::Text.new(value, @stack.last.document)
+
+        if root?
+          add_child Nokogiri::XML::Node.new(SCALAR_TAG, @stack.last.document)
+        end
+
+        add_child text
       end
 
       def end_document implicit
@@ -45,12 +60,23 @@ module Wank
       end
 
       private
+      def root?
+        @stack.last == @stack.last.document
+      end
+
       def add_child node
         target = @stack.last
         if target.name == SEQUENCE_TAG
           target = Nokogiri::XML::Node.new('li', @stack.last.document)
           @stack.last.add_child target
         end
+
+        if target.name == MAPPING_TAG
+          name = (target.children.length % 2) == 0 ? 'dt' : 'dd'
+          target = Nokogiri::XML::Node.new(name, @stack.last.document)
+          @stack.last.add_child target
+        end
+
         target.add_child node
       end
     end
