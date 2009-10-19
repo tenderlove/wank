@@ -19,18 +19,32 @@ module Wank
       end
 
       def start_element_namespace name, attrs, prefix, uri, ns
-        stack.push [name, attrs, StringIO.new]
-        @tree.start_sequence if name == Emitter::SEQUENCE_TAG
-        @tree.start_mapping  if name == Emitter::MAPPING_TAG
+        if [Emitter::MAPPING_TAG, Emitter::SEQUENCE_TAG].include?(name)
+          if !stack.empty? && Emitter::SCALAR_TAGS.include?(stack.last.first)
+            stack.last[3] = false
+          end
+        end
+
+        stack.push [name, attrs, StringIO.new, true]
+        attr_hash = Hash[*attrs.map { |x| [x.localname, x.value] }.flatten]
+        tag = attr_hash.key?('class') ?
+          attr_hash['class'].split(/\s/,2).join(':') : nil
+
+        @tree.start_sequence          if name == Emitter::SEQUENCE_TAG
+        @tree.start_mapping(nil, tag) if name == Emitter::MAPPING_TAG
       end
 
       def characters string
-        stack.last.last << string
+        stack.last[2] << string
       end
 
       def end_element_namespace name, prefix, uri
-        name, attrs, content = stack.pop
-        @tree.scalar content.string if Emitter::SCALAR_TAGS.include?(name)
+        name, attrs, content, write = stack.pop
+
+        if Emitter::SCALAR_TAGS.include?(name) && write
+          @tree.scalar content.string
+        end
+
         @tree.end_sequence          if name == Emitter::SEQUENCE_TAG
         @tree.end_mapping           if name == Emitter::MAPPING_TAG
       end

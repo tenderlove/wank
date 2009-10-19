@@ -132,11 +132,6 @@ module Wank
         x = :foo
         assert_equal x, Marshal.load(Marshal.dump(x))
       end
-
-      def test_nil_is_in_xml
-        doc = Nokogiri::XML(Marshal.dump(nil))
-        assert_equal 1, doc.css('span').length
-      end
     end
   end
 end

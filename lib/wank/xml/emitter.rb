@@ -34,6 +34,7 @@ module Wank
 
       def start_mapping anchor, tag, implicit, style
         node = Nokogiri::XML::Node.new(MAPPING_TAG, @stack.last.document)
+        node['class'] = tag.split(':', 2).join(' ') if tag
         add_child node
         @stack.push node
       end
@@ -43,15 +44,14 @@ module Wank
       end
 
       def scalar value, anchor, tag, plain, quoted, style
-        text = Nokogiri::XML::Text.new(value, @stack.last.document)
-
         if root?
           tag = Nokogiri::XML::Node.new(SCALAR_TAG, @stack.last.document)
+          tag.content = value
           add_child tag
-          @stack.push tag
+        else
+          text = Nokogiri::XML::Text.new(value, @stack.last.document)
+          add_child text
         end
-
-        add_child text
       end
 
       def end_document implicit
