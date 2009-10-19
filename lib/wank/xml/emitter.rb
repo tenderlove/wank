@@ -1,7 +1,7 @@
 module Wank
   module XML
     class Emitter
-      attr_accessor :documents
+      attr_accessor :document
 
       SCALAR_TAG   = 'p'
       SCALAR_TAGS  = %w{ p li dt dd }
@@ -9,17 +9,17 @@ module Wank
       MAPPING_TAG  = 'dl'
 
       def initialize
-        @documents = []
-        @stack     = []
+        @document = nil
+        @stack    = []
       end
 
       def start_stream encoding
       end
 
       def start_document version, directives, implicit
-        doc = Nokogiri::XML::Document.new
-        doc.encoding = 'UTF-8'
-        @stack.push doc
+        @document = Nokogiri::XML::Document.new
+        @document.encoding = 'UTF-8'
+        @stack.push @document
       end
 
       def start_sequence anchor, tag, implicit, style
@@ -55,7 +55,6 @@ module Wank
       end
 
       def end_document implicit
-        @documents << @stack.pop
       end
 
       def end_stream

@@ -29,7 +29,7 @@ module Wank
         }.new(XML::Emitter.new)
 
         emitter.accept(yaml_ast)
-        emitter.handler.documents.first.to_xml
+        emitter.handler.document.to_xml
       end
 
       def to_s
