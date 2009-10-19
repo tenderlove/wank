@@ -1,19 +1,19 @@
 module Wank
   module HTML
     class Marshal < Wank::XML::Marshal
-      def to_s
-        @doc.root = Element.new('html', @doc)
-        @doc.root << Element.new('body', @doc)
-        @parent = @doc.root.children.first
-        dump @target
-        @doc.to_xhtml
-      end
+      def dump o
+        visitor = Psych::Visitors::YASTBuilder.new
+        visitor.accept(o)
+        yaml_ast = visitor.tree
+        emitter = Class.new(Psych::Visitors::Emitter) {
+          attr_accessor :handler
+          def initialize handler
+            @handler = handler
+          end
+        }.new(HTML::Emitter.new)
 
-      def to_o
-        @doc = Nokogiri::XML(@target) { |cfg| cfg.noblanks }
-        @doc.at('body').children.each do |child|
-          return __load(child)
-        end
+        emitter.accept(yaml_ast)
+        emitter.handler.document.to_xhtml
       end
     end
   end
