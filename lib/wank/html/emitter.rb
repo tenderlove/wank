@@ -16,6 +16,11 @@ module Wank
 
         @stack.push @document.at('body')
       end
+
+      private
+      def root?
+        @stack.last.name == 'body'
+      end
     end
   end
 end
